@@ -7,23 +7,18 @@ on:
     branches: [main]
 
 jobs:
-  build-and-scan:
+  scan:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Install SonarScanner
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y wget unzip
-        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.9.3.731-linux.zip
-        unzip sonar-scanner-cli-4.9.3.731-linux.zip
-        export PATH=$PWD/sonar-scanner-4.9.3.731-linux/bin:$PATH
-
     - name: Run SonarQube Scan
-      run: sonar-scanner -Dsonar.projectKey=my-html-project \
-                         -Dsonar.sources=. \
-                         -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-                         -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      uses: SonarSource/sonar-scanner-action@v1.0
+      with:
+        host-url: ${{ secrets.SONAR_HOST_URL }}
+        login: ${{ secrets.SONAR_TOKEN }}
+        project-key: my-html-project
+        project-name: My HTML Project
+        sources: .
