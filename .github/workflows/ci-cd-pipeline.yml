@@ -14,11 +14,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Run SonarQube Scan
-      uses: SonarSource/sonar-scanner-action@v1.0
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
       with:
-        host-url: ${{ secrets.SONAR_HOST_URL }}
-        login: ${{ secrets.SONAR_TOKEN }}
-        project-key: my-html-project
-        project-name: My HTML Project
-        sources: .
+        node-version: '18'
+
+    - name: Install SonarScanner
+      run: npm install -g sonar-scanner
+
+    - name: Run SonarQube Scan
+      run: |
+        sonar-scanner \
+          -Dsonar.projectKey=my-html-project \
+          -Dsonar.sources=. \
+          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
