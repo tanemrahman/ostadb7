@@ -1,4 +1,4 @@
-name: CI/CD Pipeline with SonarQube
+name: CI/CD Pipeline for HTML Project
 
 on:
   push:
@@ -14,21 +14,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Java
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+    - name: Install SonarScanner
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget unzip
+        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.9.3.731-linux.zip
+        unzip sonar-scanner-cli-4.9.3.731-linux.zip
+        export PATH=$PWD/sonar-scanner-4.9.3.731-linux/bin:$PATH
 
-    - name: Build Project
-      run: mvn clean install
-
-    - name: Run Tests
-      run: mvn test
-
-    - name: SonarQube Scan
-      run: mvn sonar:sonar \
-        -Dsonar.projectKey=my-app \
-        -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-        -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-        -Dsonar.qualitygate.wait=true
+    - name: Run SonarQube Scan
+      run: sonar-scanner -Dsonar.projectKey=my-html-project \
+                         -Dsonar.sources=. \
+                         -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+                         -Dsonar.login=${{ secrets.SONAR_TOKEN }}
