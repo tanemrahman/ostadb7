@@ -1,0 +1,47 @@
+name: CI/CD Pipeline with SonarQube
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step 2: Set up Java (Maven project example)
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    # Step 3: Build project
+    - name: Build Project
+      run: mvn clean install
+
+    # Step 4: Run automated tests
+    - name: Run Tests
+      run: mvn test
+
+    # Step 5: SonarQube Scan
+    - name: SonarQube Scan
+      run: mvn sonar:sonar \
+        -Dsonar.projectKey=my-app \
+        -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+        -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+        -Dsonar.qualitygate.wait=true
+
+    - name: Quality Gate Check
+      uses: sonarsource/sonarcloud-github-action@v1.11.0
+      with:
+        projectKey: my-app
+        organization: your-organization
+        token: ${{ secrets.SONAR_TOKEN }}
+        waitForQualityGate: true
